@@ -62,9 +62,6 @@ namespace DbUp.Engine
         public DatabaseUpgradeResult PerformUpgrade()
         {
             var executed = new List<SqlScript>();
-
-            string executedScriptName = null;
-
             try
             {
                 using (configuration.ConnectionManager.OperationStarting(configuration.Log, executed))
@@ -83,8 +80,6 @@ namespace DbUp.Engine
 
                     foreach (var script in scriptsToExecute)
                     {
-                        executedScriptName = script.Name;
-
                         configuration.ScriptExecutor.Execute(script, configuration.Variables);
 
                         configuration.Journal.StoreExecutedScript(script);
@@ -98,7 +93,6 @@ namespace DbUp.Engine
             }
             catch (Exception ex)
             {
-                ex.Data.Add("Error occurred in script: ", executedScriptName);
                 configuration.Log.WriteError("Upgrade failed due to an unexpected exception:\r\n{0}", ex.ToString());
                 return new DatabaseUpgradeResult(executed, false, ex);
             }
